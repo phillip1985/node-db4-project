@@ -116,4 +116,5 @@ dist
 .pnp.*
 
 # Visual Studio Code
+.vscode
 .vs
