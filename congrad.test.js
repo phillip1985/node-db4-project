@@ -1,7 +1,7 @@
 const request = require('supertest')
 const db = require('./data/dbConfig')
 const server = require('./backend/server.js')
-const { nanoid } = require('nanoid')
+const { nanoid } = require('nanoid');
 
 const ingredient = [
     { ingr_name: 'Spaghetti', unit: 'g' },
