@@ -2,7 +2,13 @@ import axios from 'axios';
 
 const BASE_URL = 'http://localhost:9009/api/recipes';
 
-const fetchRecipes = () => axios.get(BASE_URL);
+// Updated: Accepts page and pageSize for pagination
+const fetchRecipes = async (page = 1, pageSize = 10) => {
+    const response = await axios.get(BASE_URL, {
+        params: { page, pageSize },
+    });
+    return response.data;
+};
 
 const fetchRecipeById = async (id) => {
     try {

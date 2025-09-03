@@ -1,17 +1,18 @@
 const Router = require('express').Router();
 
 const Recipes = require('./recipes_model.js');
-const { validateRecipe, validateRecipeUpdate, checkRecipeNameExists } = require('./recipes_middleware.js');   
+const { validateRecipe, validateRecipeUpdate, checkRecipeNameExists } = require('./recipes_middleware.js');
 
 // GET all recipes
-Router.get('/', (req, res, next) => {
-    Recipes.getAll()
-        .then(recipes => {
-        res.status(200).json(recipes);
-        })
-        .catch(err => {
+Router.get('/', async (req, res, next) => {
+    const page = parseInt(req.query.page, 10) || 1;
+    const pageSize = parseInt(req.query.pageSize, 10) || 10;
+    try {
+        const result = await Recipes.getAll(page, pageSize);
+        res.json(result);
+    } catch (err) {
         next(err);
-        });
+    }
 });
 
 Router.get('/ingredients', (req, res, next) => {
