@@ -7,6 +7,12 @@ import './Recipes.css';
 
 const DEFAULT_PAGE_SIZE = 10;
 
+function getPageFromQuery(search) {
+  const params = new URLSearchParams(search);
+  const page = parseInt(params.get('page'), 10);
+  return isNaN(page) || page < 1 ? 1 : page;
+}
+
 const Recipes = () => {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -16,9 +22,16 @@ const Recipes = () => {
   const error = useSelector((state) => state.recipes.error);
 
   // Pagination state
-  const [page, setPage] = useState(1);
   const [pageSize] = useState(DEFAULT_PAGE_SIZE);
   const [total, setTotal] = useState(0);
+
+  // Sync page state with URL query
+  const [page, setPage] = useState(getPageFromQuery(location.search));
+
+  useEffect(() => {
+    setPage(getPageFromQuery(location.search));
+    // eslint-disable-next-line
+  }, [location.search]);
 
   const [localSuccessMessage, setLocalSuccessMessage] = useState(location.state?.successMessage);
 
@@ -27,7 +40,6 @@ const Recipes = () => {
       dispatch(setStatus('loading'));
       try {
         const response = await fetchRecipes(page, pageSize);
-        // response: { recipes, total, page, pageSize }
         dispatch(setRecipes(response.recipes));
         setTotal(response.total);
       } catch (err) {
@@ -49,7 +61,7 @@ const Recipes = () => {
   // Clear the router state after showing the message
   useEffect(() => {
     if (location.state?.successMessage) {
-      navigate(location.pathname, { replace: true, state: {} });
+      navigate(location.pathname + location.search, { replace: true, state: {} });
     }
     // eslint-disable-next-line
   }, []);
@@ -70,6 +82,11 @@ const Recipes = () => {
   };
 
   const totalPages = Math.ceil(total / pageSize);
+
+  // Handlers for pagination buttons
+  const goToPage = (newPage) => {
+    navigate(`/recipes?page=${newPage}`);
+  };
 
   if (status === 'loading') {
     return <div>Loading recipes...</div>;
@@ -125,7 +142,7 @@ const Recipes = () => {
           {/* Pagination Controls */}
           <div className="pagination-controls" style={{ marginTop: 20, textAlign: 'center' }}>
             <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              onClick={() => goToPage(Math.max(1, page - 1))}
               disabled={page === 1}
               style={{ marginRight: 10 }}
             >
@@ -135,7 +152,7 @@ const Recipes = () => {
               Page {page} of {totalPages}
             </span>
             <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              onClick={() => goToPage(Math.min(totalPages, page + 1))}
               disabled={page === totalPages || totalPages === 0}
               style={{ marginLeft: 10 }}
             >
