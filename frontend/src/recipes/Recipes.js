@@ -97,7 +97,7 @@ const Recipes = () => {
   }
 
   return (
-    <div>
+    <div className="recipes-page-container">
       <h2>Recipes</h2>
       {localSuccessMessage && (
         <div className="success-message-float">{localSuccessMessage}</div>
@@ -140,7 +140,7 @@ const Recipes = () => {
             </ul>
           </div>
           {/* Pagination Controls */}
-          <div className="pagination-controls" style={{ marginTop: 20, textAlign: 'center' }}>
+          <div className="pagination-controls">
             <button
               onClick={() => goToPage(Math.max(1, page - 1))}
               disabled={page === 1}
