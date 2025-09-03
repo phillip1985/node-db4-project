@@ -14,6 +14,11 @@ import './recipeForm.css';
 
 const initialStep = { step_number: 1, step_instructions: '', ingredients: [] };
 const initialIngredient = { ingredient_id: '', quantity: '', unit: '' };
+const initialRecipeData = {
+  recipeName: '',
+  steps: [{ ...initialStep }],
+  ingredientsList: [],
+};
 
 // Yup schema for validation
 const recipeSchema = yup.object().shape({
@@ -84,16 +89,11 @@ const RecipeForm = () => {
     const ingredientsStatus = useSelector((state) => state.recipes.ingredientsStatus);
     const reduxIngredientsList = useSelector((state) => state.recipes.ingredients);
 
-    const [recipeData, setRecipeData] = useState({
-        recipeName: '',
-        steps: [{ ...initialStep }],
-        ingredientsList: [],
-    });
+    const [recipeData, setRecipeData] = useState(initialRecipeData);
     const [originalRecipeName, setOriginalRecipeName] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [fieldErrors, setFieldErrors] = useState([]);
     const [nameStatus, setNameStatus] = useState('');
-    const [focusedFields, setFocusedFields] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const nameCheckTimeout = React.useRef();
@@ -415,7 +415,7 @@ const RecipeForm = () => {
             recipe_name: recipeData.recipeName,
             steps: recipeData.steps.map((step, idx) => {
                 const filteredIngredients = step.ingredients
-                    .filter(ing => ing.ingredient_id && ing.quantity);
+                    .filter(eng => eng.ingredient_id && eng.quantity);
                 return {
                     step_number: idx + 1,
                     step_instructions: step.step_instructions,
@@ -467,6 +467,10 @@ const RecipeForm = () => {
 
     useEffect(() => {
         if (!recipeId) {
+            setRecipeData(initialRecipeData);
+            setOriginalRecipeName('');
+            setFieldErrors([]);
+            setNameStatus('');
             setSuccessMessage('');
         }
     }, [recipeId]);
@@ -563,34 +567,6 @@ const RecipeForm = () => {
         recipeData.ingredientsList.length > 0 &&
         !error;
 
-    const handleFocus = (field, idx) => {
-        setFocusedFields(prev => ({
-            ...prev,
-            [field]: idx !== undefined ? { ...(prev[field] || {}), [idx]: true } : true
-        }));
-    };
-
-    const handleBlur = (field, idx) => {
-        setFocusedFields(prev => ({
-            ...prev,
-            [field]: idx !== undefined ? { ...(prev[field] || {}), [idx]: false } : false
-        }));
-    };
-
-    const hasIngredientErrors = (stepIdx) => {
-        if (
-            !fieldErrors.steps ||
-            !fieldErrors.steps[stepIdx] ||
-            !fieldErrors.steps[stepIdx].ingredients
-        ) {
-            return false;
-        }
-        return Object.values(fieldErrors.steps[stepIdx].ingredients).some(
-            ingErr =>
-                (ingErr && (ingErr.ingredient_id || ingErr.quantity))
-        );
-    };
-
     return (
         <div className="recipe-detail-card">
             <h2 className="recipe-detail-title">
@@ -614,14 +590,14 @@ const RecipeForm = () => {
                                 type="text"
                                 value={recipeData.recipeName}
                                 onChange={handleRecipeNameChange}
-                                onFocus={() => handleFocus('recipe_name')}
-                                onBlur={() => handleBlur('recipe_name')}
                                 required
                                 className={
                                     fieldErrors.recipe_name
                                         ? 'input-error'
                                         : ''
                                 }
+                                onFocus={() => handleFocus('recipe_name')}
+                                onBlur={() => handleBlur('recipe_name')}
                             />
                         </label>
                         {fieldErrors.recipe_name && (
@@ -655,8 +631,6 @@ const RecipeForm = () => {
                                                         <textarea
                                                             value={step.step_instructions}
                                                             onChange={e => handleStepChange(stepIdx, 'step_instructions', e.target.value)}
-                                                            onFocus={() => handleFocus('step_instructions', stepIdx)}
-                                                            onBlur={() => handleBlur('step_instructions', stepIdx)}
                                                             required
                                                             className={
                                                                 fieldErrors.steps &&
@@ -684,11 +658,6 @@ const RecipeForm = () => {
                                                                     <select
                                                                         value={ing.ingredient_id}
                                                                         onChange={e => handleIngredientChange(stepIdx, ingIdx, 'ingredient_id', e.target.value)}
-                                                                        onFocus={() => handleFocus(`ingredient_id_${stepIdx}_${ingIdx}`)}
-                                                                        onBlur={async () => {
-                                                                            handleBlur(`ingredient_id_${stepIdx}_${ingIdx}`);
-                                                                            await handleIngredientChange(stepIdx, ingIdx, 'ingredient_id', step.ingredients[ingIdx].ingredient_id);
-                                                                        }}
                                                                         required
                                                                         className={
                                                                             fieldErrors.steps &&
@@ -719,11 +688,6 @@ const RecipeForm = () => {
                                                                         placeholder="Qty"
                                                                         value={ing.quantity}
                                                                         onChange={e => handleIngredientChange(stepIdx, ingIdx, 'quantity', e.target.value)}
-                                                                        onFocus={() => handleFocus(`quantity_${stepIdx}_${ingIdx}`)}
-                                                                        onBlur={async () => {
-                                                                            handleBlur(`quantity_${stepIdx}_${ingIdx}`);
-                                                                            await handleIngredientChange(stepIdx, ingIdx, 'quantity', step.ingredients[ingIdx].quantity);
-                                                                        }}
                                                                         className={
                                                                             fieldErrors.steps &&
                                                                             fieldErrors.steps[stepIdx] &&
