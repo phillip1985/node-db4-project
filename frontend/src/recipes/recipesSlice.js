@@ -6,7 +6,6 @@ const initialState = {
     error: null,
     ingredients: [],
     ingredientsStatus: 'idle',
-    ingredientsError: null,
 };
 
 const recipesSlice = createSlice({

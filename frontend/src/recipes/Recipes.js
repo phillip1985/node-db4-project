@@ -4,13 +4,16 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setRecipes, setStatus, setError } from './recipesSlice';
 import { fetchRecipes, deleteRecipe } from './recipesApi';
 import './Recipes.css';
+import ConfirmModal from '../components/ConfirmModal';
 
 const DEFAULT_PAGE_SIZE = 10;
 
-function getPageFromQuery(search) {
+function getPageFromQuery(search, totalPages) {
   const params = new URLSearchParams(search);
   const page = parseInt(params.get('page'), 10);
-  return isNaN(page) || page < 1 ? 1 : page;
+  if (isNaN(page) || page < 1) return 1;
+  if (totalPages && page > totalPages) return totalPages;
+  return page;
 }
 
 const Recipes = () => {
@@ -25,13 +28,16 @@ const Recipes = () => {
   const [pageSize] = useState(DEFAULT_PAGE_SIZE);
   const [total, setTotal] = useState(0);
 
-  // Sync page state with URL query
-  const [page, setPage] = useState(getPageFromQuery(location.search));
+  // Calculate totalPages after recipes are loaded
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  // Sync page state with URL query, validate page
+  const [page, setPage] = useState(getPageFromQuery(location.search, totalPages));
 
   useEffect(() => {
-    setPage(getPageFromQuery(location.search));
+    setPage(getPageFromQuery(location.search, totalPages));
     // eslint-disable-next-line
-  }, [location.search]);
+  }, [location.search, totalPages]);
 
   const [localSuccessMessage, setLocalSuccessMessage] = useState(location.state?.successMessage);
 
@@ -66,11 +72,21 @@ const Recipes = () => {
     // eslint-disable-next-line
   }, []);
 
-  const handleDelete = async (recipeId) => {
-    if (!window.confirm('Are you sure you want to delete this recipe?')) return;
+  // ConfirmModal state
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+
+  const handleDeleteClick = (recipeId) => {
+    setPendingDeleteId(recipeId);
+    setShowConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    setShowConfirm(false);
+    if (!pendingDeleteId) return;
     dispatch(setStatus('loading'));
     try {
-      await deleteRecipe(recipeId);
+      await deleteRecipe(pendingDeleteId);
       // Refetch recipes for the current page
       const response = await fetchRecipes(page, pageSize);
       dispatch(setRecipes(response.recipes));
@@ -79,13 +95,19 @@ const Recipes = () => {
     } catch (err) {
       dispatch(setError(err.message));
     }
+    setPendingDeleteId(null);
   };
 
-  const totalPages = Math.ceil(total / pageSize);
+  const cancelDelete = () => {
+    setShowConfirm(false);
+    setPendingDeleteId(null);
+  };
 
   // Handlers for pagination buttons
   const goToPage = (newPage) => {
-    navigate(`/recipes?page=${newPage}`);
+    // Only allow navigation to valid pages
+    const safePage = Math.max(1, Math.min(totalPages, Number(newPage)));
+    navigate(`/recipes?page=${safePage}`);
   };
 
   if (status === 'loading') {
@@ -129,7 +151,7 @@ const Recipes = () => {
                       <button
                         className="delete-btn"
                         style={{ marginLeft: 8 }}
-                        onClick={() => handleDelete(recipe.recipe_id)}
+                        onClick={() => handleDeleteClick(recipe.recipe_id)}
                       >
                         Delete
                       </button>
@@ -161,6 +183,12 @@ const Recipes = () => {
           </div>
         </>
       )}
+      <ConfirmModal
+        show={showConfirm}
+        message="Are you sure you want to delete this recipe?"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+      />
     </div>
   );
 };

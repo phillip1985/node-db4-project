@@ -4,6 +4,7 @@ import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { setRecipes, setStatus, setError } from './recipesSlice';
 import { fetchRecipeById, deleteRecipe } from './recipesApi';
 import './recipeDetails.css';
+import ConfirmModal from '../components/ConfirmModal';
 
 const RecipeDetail = () => {
     const { id } = useParams();
@@ -19,6 +20,7 @@ const RecipeDetail = () => {
 
     // Local state for the success message
     const [localSuccessMessage, setLocalSuccessMessage] = useState(location.state?.successMessage);
+    const [showConfirm, setShowConfirm] = useState(false);
 
     // Hide the success message after 3 seconds
     useEffect(() => {
@@ -50,8 +52,12 @@ const RecipeDetail = () => {
         loadRecipe(id);
     }, [dispatch, id]);
 
-    const handleDelete = async () => {
-        if (!window.confirm('Are you sure you want to delete this recipe?')) return;
+    const handleDelete = () => {
+        setShowConfirm(true);
+    };
+
+    const confirmDelete = async () => {
+        setShowConfirm(false);
         dispatch(setStatus('loading'));
         try {
             await deleteRecipe(id);
@@ -61,6 +67,10 @@ const RecipeDetail = () => {
             dispatch(setStatus('failed'));
             dispatch(setError(err.message));
         }
+    };
+
+    const cancelDelete = () => {
+        setShowConfirm(false);
     };
 
     if (status === 'loading') {
@@ -128,6 +138,13 @@ const RecipeDetail = () => {
                     </li>
                 ))}
             </ol>
+
+            <ConfirmModal
+                show={showConfirm}
+                message="Are you sure you want to delete this recipe?"
+                onConfirm={confirmDelete}
+                onCancel={cancelDelete}
+            />
         </div>
     );
 };

@@ -453,7 +453,8 @@ const RecipeForm = () => {
             }
             dispatch(setStatus('idle'));
         } catch (err) {
-            setFieldErrors({ form: err.message });
+            dispatch(setError(err.message)); // For global/API errors
+            setFieldErrors({ form: err.message }); // For form-level errors
             setIsSubmitting(false);
             dispatch(setStatus('idle'));
         }
@@ -567,6 +568,38 @@ const RecipeForm = () => {
         recipeData.ingredientsList.length > 0 &&
         !error;
 
+    const handleFocus = (field) => {
+        // Example: clear error for this field
+        setFieldErrors((prev) => ({ ...prev, [field]: '' }));
+    };
+
+    const handleBlur = (fieldPath) => {
+        validateField(fieldPath, recipeData).then((errorMsg) => {
+            // Map the error to the correct place in fieldErrors
+            if (fieldPath === 'recipeName') {
+                setFieldErrors((prev) => ({ ...prev, recipe_name: errorMsg }));
+            } else {
+                // For nested fields like steps[0].step_instructions or steps[0].ingredients[1].quantity
+                const match = fieldPath.match(/^steps\[(\d+)\](?:\.ingredients\[(\d+)\])?\.(\w+)$/);
+                if (match) {
+                    const [, stepIdx, ingIdx, field] = match;
+                    setFieldErrors((prev) => {
+                        const updated = { ...prev, steps: { ...(prev.steps || {}) } };
+                        updated.steps[stepIdx] = { ...(updated.steps[stepIdx] || {}) };
+                        if (ingIdx !== undefined) {
+                            updated.steps[stepIdx].ingredients = { ...(updated.steps[stepIdx].ingredients || {}) };
+                            updated.steps[stepIdx].ingredients[ingIdx] = { ...(updated.steps[stepIdx].ingredients[ingIdx] || {}) };
+                            updated.steps[stepIdx].ingredients[ingIdx][field] = errorMsg;
+                        } else {
+                            updated.steps[stepIdx][field] = errorMsg;
+                        }
+                        return updated;
+                    });
+                }
+            }
+        });
+    };
+
     return (
         <div className="recipe-detail-card">
             <h2 className="recipe-detail-title">
@@ -591,13 +624,9 @@ const RecipeForm = () => {
                                 value={recipeData.recipeName}
                                 onChange={handleRecipeNameChange}
                                 required
-                                className={
-                                    fieldErrors.recipe_name
-                                        ? 'input-error'
-                                        : ''
-                                }
+                                className={fieldErrors.recipe_name ? 'input-error' : ''}
                                 onFocus={() => handleFocus('recipe_name')}
-                                onBlur={() => handleBlur('recipe_name')}
+                                onBlur={() => handleBlur('recipeName')}
                             />
                         </label>
                         {fieldErrors.recipe_name && (
@@ -639,6 +668,7 @@ const RecipeForm = () => {
                                                                     ? 'input-error'
                                                                     : ''
                                                             }
+                                                            onBlur={() => handleBlur(`steps[${stepIdx}].step_instructions`)}
                                                         />
                                                         {fieldErrors.steps &&
                                                             fieldErrors.steps[stepIdx] &&
@@ -668,6 +698,7 @@ const RecipeForm = () => {
                                                                                 ? 'input-error'
                                                                                 : ''
                                                                         }
+                                                                        onBlur={() => handleBlur(`steps[${stepIdx}].ingredients[${ingIdx}].ingredient_id`)}
                                                                     >
                                                                         <option value="">Select Ingredient</option>
                                                                         {recipeData.ingredientsList.map(ingredient => (
@@ -697,6 +728,7 @@ const RecipeForm = () => {
                                                                                 ? 'input-error'
                                                                                 : ''
                                                                         }
+                                                                        onBlur={() => handleBlur(`steps[${stepIdx}].ingredients[${ingIdx}].quantity`)}
                                                                     />
                                                                     <input
                                                                     type="text"
