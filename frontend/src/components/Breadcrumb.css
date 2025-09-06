@@ -1,0 +1,26 @@
+.recipe-details-breadcrumb {
+    margin-bottom: 18px;
+    font-size: 1.05em;
+}
+
+    .recipe-details-breadcrumb a {
+        color: #1976d2;
+        text-decoration: none;
+    }
+
+        .recipe-details-breadcrumb a:hover {
+            text-decoration: underline;
+        }
+
+.breadcrumb-link {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+}
+.breadcrumb-link:hover {
+  text-decoration: underline;
+}
+.breadcrumb-active {
+  color: #555;
+  font-weight: 500;
+}

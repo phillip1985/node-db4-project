@@ -6,6 +6,7 @@ import { fetchRecipeById, deleteRecipe } from '../reducers/recipes/recipesApi';
 import './recipeDetails.css';
 import ConfirmModal from '../components/ConfirmModal';
 import Message from '../components/Message';
+import Breadcrumb from '../components/Breadcrumb';
 
 const RecipeDetail = () => {
     const { id } = useParams();
@@ -90,8 +91,28 @@ const RecipeDetail = () => {
     }
 
     return (
-            <div className="recipe-details-card">
-                {localSuccessMessage && (
+        <div className="recipe-details-card">
+            {/* History Navigation */}
+            <button
+                className="recipe-details-back-btn"
+                onClick={() => navigate(-1)}
+                style={{
+                    marginBottom: '18px',
+                    padding: '8px 18px',
+                    background: '#1976d2',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontWeight: 500
+                }}
+            >
+                &larr; Back
+            </button>
+
+            <Breadcrumb recipeName={recipe?.recipe_name} recipeId={recipe?.recipe_id} />
+
+            {localSuccessMessage && (
                 <Message type="success" onClose={() => setLocalSuccessMessage('')}>
                     {localSuccessMessage}
                 </Message>
@@ -101,7 +122,7 @@ const RecipeDetail = () => {
                     {error}
                 </Message>
             )}
-                        <div className="recipe-detail-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            <div className="recipe-detail-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                 <div>
                     <h2 className="recipe-details-title">{recipe.recipe_name}</h2>
                     {recipe.created_at && (
@@ -160,7 +181,7 @@ const RecipeDetail = () => {
                 onConfirm={confirmDelete}
                 onCancel={cancelDelete}
             />
-            </div>
+        </div>
     );
 };
 

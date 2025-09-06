@@ -6,6 +6,7 @@ import { fetchRecipes, deleteRecipe } from '../reducers/recipes/recipesApi';
 import './Recipes.css';
 import ConfirmModal from '../components/ConfirmModal';
 import Message from '../components/Message';
+import Breadcrumb from '../components/Breadcrumb';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -122,6 +123,7 @@ const Recipes = () => {
   if (isPageOutOfBounds) {
     return (
       <div className="recipes-page-container">
+        <Breadcrumb />
         <h2>Recipes</h2>
         <div className="page-not-found-section">
           <p>Page not found.</p>
@@ -131,19 +133,19 @@ const Recipes = () => {
     );
   }
 
-    return (
-     
-            <div className="recipes-page-container">
-                {localSuccessMessage && (
-                <Message type="success" onClose={() => setLocalSuccessMessage('')}>
-                    {localSuccessMessage}
-                </Message>
-            )}
-            {status === 'failed' && error && (
-                <Message type="error" onClose={() => dispatch(setError(null))}>
-                    {error}
-                </Message>
-            )}
+  return (
+    <div className="recipes-page-container">
+      <Breadcrumb />
+      {localSuccessMessage && (
+        <Message type="success" onClose={() => setLocalSuccessMessage('')}>
+          {localSuccessMessage}
+        </Message>
+      )}
+      {status === 'failed' && error && (
+        <Message type="error" onClose={() => dispatch(setError(null))}>
+          {error}
+        </Message>
+      )}
       <h2>Recipes</h2>
       {recipes.length === 0 ? (
         <div className="no-recipes-section">
@@ -214,7 +216,7 @@ const Recipes = () => {
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
-            </div>
+    </div>
   );
 };
 

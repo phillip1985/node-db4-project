@@ -11,6 +11,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import * as yup from 'yup';
 import './recipeForm.css';
+import Breadcrumb from '../components/Breadcrumb';
 
 const initialStep = { step_number: 1, step_instructions: '', ingredients: [] };
 const initialIngredient = { ingredient_id: '', quantity: '', unit: '' };
@@ -602,6 +603,7 @@ const RecipeForm = () => {
 
     return (
         <div className="recipe-detail-card">
+            <Breadcrumb recipeName={recipeData.recipeName} recipeId={recipeId} />
             <h2 className="recipe-detail-title">
                 {recipeId ? 'Edit Recipe' : 'Create New Recipe'}
             </h2>
