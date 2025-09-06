@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { createNewRecipe, fetchIngredients, fetchRecipeById, updateRecipe, checkRecipeNameExists } from './recipesApi';
+import { createNewRecipe, fetchIngredients, fetchRecipeById, updateRecipe, checkRecipeNameExists } from '../reducers/recipes/recipesApi';
 import {
     setIngredients,
     setStatus,
     setError,
     clearError
-} from './recipesSlice';
+} from '../reducers/recipes/recipesSlice';
 import { useNavigate, useParams } from 'react-router-dom';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import * as yup from 'yup';

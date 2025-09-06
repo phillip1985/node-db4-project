@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
-import { setRecipes, setStatus, setError } from './recipesSlice';
-import { fetchRecipeById, deleteRecipe } from './recipesApi';
+import { setRecipes, setStatus, setError } from '../reducers/recipes/recipesSlice';
+import { fetchRecipeById, deleteRecipe } from '../reducers/recipes/recipesApi';
 import './recipeDetails.css';
 import ConfirmModal from '../components/ConfirmModal';
 
