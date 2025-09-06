@@ -9,11 +9,10 @@ import Message from '../components/Message';
 
 const DEFAULT_PAGE_SIZE = 10;
 
-function getPageFromQuery(search, totalPages) {
+function getPageFromQuery(search) {
   const params = new URLSearchParams(search);
   const page = parseInt(params.get('page'), 10);
   if (isNaN(page) || page < 1) return 1;
-  if (totalPages && page > totalPages) return totalPages;
   return page;
 }
 
@@ -33,12 +32,11 @@ const Recipes = () => {
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   // Sync page state with URL query, validate page
-  const [page, setPage] = useState(getPageFromQuery(location.search, totalPages));
-
+  const [page, setPage] = useState(getPageFromQuery(location.search));
   useEffect(() => {
-    setPage(getPageFromQuery(location.search, totalPages));
+    setPage(getPageFromQuery(location.search));
     // eslint-disable-next-line
-  }, [location.search, totalPages]);
+  }, [location.search]);
 
   const [localSuccessMessage, setLocalSuccessMessage] = useState(location.state?.successMessage);
 
@@ -110,12 +108,27 @@ const Recipes = () => {
     navigate(`/recipes?page=${safePage}`);
   };
 
+  // Out-of-bounds page detection
+  const isPageOutOfBounds = page > totalPages;
+
   if (status === 'loading') {
     return <div>Loading recipes...</div>;
   }
 
   if (status === 'failed') {
     return <div>Error: {error}</div>;
+  }
+
+  if (isPageOutOfBounds) {
+    return (
+      <div className="recipes-page-container">
+        <h2>Recipes</h2>
+        <div className="page-not-found-section">
+          <p>Page not found.</p>
+          <Link className="add-recipe-link" to="/recipes?page=1">Go to first page</Link>
+        </div>
+      </div>
+    );
   }
 
     return (

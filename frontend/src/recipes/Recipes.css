@@ -4,7 +4,7 @@
   background: #f9f9f9;
   border-radius: 8px;
   margin: 24px 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .no-recipes-section p {
@@ -40,7 +40,7 @@
   padding: 14px 32px;
   z-index: 1000;
   font-size: 1.1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   min-width: 240px;
   text-align: center;
   pointer-events: none;
@@ -213,6 +213,21 @@
   background: #f9f9f9;
   width: 100%;
   z-index: 1;
+}
+
+.page-not-found-section {
+  text-align: center;
+  padding: 48px 0;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin: 32px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.page-not-found-section p {
+  font-size: 1.25em;
+  color: #d32f2f;
+  margin-bottom: 18px;
 }
 
 @media (max-width: 600px) {

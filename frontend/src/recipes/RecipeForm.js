@@ -875,8 +875,7 @@ const RecipeForm = () => {
 >
     Reset
                         </button>
-                    </div>
-                    
+                    </div>                   
                     
                         {successMessage && (
                         <div className="success-message">{successMessage}</div>
