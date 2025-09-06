@@ -832,9 +832,53 @@ const RecipeForm = () => {
                                 : recipeId
                                     ? 'Update Recipe'
                                     : 'Create Recipe'}
+                            </button>
+                            <button
+    type="button"
+    className="reset-row"
+    onClick={() => {
+        if (recipeId) {
+            // If editing, reload original recipe data
+            dispatch(setStatus('loading'));
+            fetchRecipeById(recipeId).then(recipeRes => {
+                const recipe = recipeRes.data.recipe || recipeRes.data;
+                setRecipeData({
+                    recipeName: recipe.recipe_name,
+                    steps: recipe.steps.map((step) => ({
+                        step_number: step.step_number,
+                        step_instructions: step.step_instructions,
+                        ingredients: (step.ingredients || []).map((ing) => ({
+                            ingredient_id: ing.ingredient_id,
+                            quantity: ing.quantity,
+                            unit: ing.unit,
+                        })),
+                    })),
+                    ingredientsList: reduxIngredientsList,
+                });
+                setOriginalRecipeName(recipe.recipe_name);
+                setFieldErrors([]);
+                setNameStatus('');
+                setSuccessMessage('');
+                dispatch(setStatus('succeeded'));
+            });
+        } else {
+            // If creating, reset to initial blank state
+            setRecipeData({
+                ...initialRecipeData,
+                ingredientsList: reduxIngredientsList,
+            });
+            setFieldErrors([]);
+            setNameStatus('');
+            setSuccessMessage('');
+        }
+    }}
+>
+    Reset
                         </button>
                     </div>
-                    {successMessage && (
+                    
+                    
+                        {successMessage && (
                         <div className="success-message">{successMessage}</div>
                     )}
                 </form>
