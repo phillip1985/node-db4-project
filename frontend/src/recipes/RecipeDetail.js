@@ -5,6 +5,7 @@ import { setRecipes, setStatus, setError } from '../reducers/recipes/recipesSlic
 import { fetchRecipeById, deleteRecipe } from '../reducers/recipes/recipesApi';
 import './recipeDetails.css';
 import ConfirmModal from '../components/ConfirmModal';
+import Message from '../components/Message';
 
 const RecipeDetail = () => {
     const { id } = useParams();
@@ -89,11 +90,18 @@ const RecipeDetail = () => {
     }
 
     return (
-        <div className="recipe-details-card">
-            {localSuccessMessage && (
-                <div className="success-message-float">{localSuccessMessage}</div>
+            <div className="recipe-details-card">
+                {localSuccessMessage && (
+                <Message type="success" onClose={() => setLocalSuccessMessage('')}>
+                    {localSuccessMessage}
+                </Message>
             )}
-            <div className="recipe-detail-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+            {status === 'failed' && error && (
+                <Message type="error" onClose={() => dispatch(setError(null))}>
+                    {error}
+                </Message>
+            )}
+                        <div className="recipe-detail-header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
                 <div>
                     <h2 className="recipe-details-title">{recipe.recipe_name}</h2>
                     {recipe.created_at && (
@@ -152,7 +160,7 @@ const RecipeDetail = () => {
                 onConfirm={confirmDelete}
                 onCancel={cancelDelete}
             />
-        </div>
+            </div>
     );
 };
 

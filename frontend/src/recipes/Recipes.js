@@ -5,6 +5,7 @@ import { setRecipes, setStatus, setError } from '../reducers/recipes/recipesSlic
 import { fetchRecipes, deleteRecipe } from '../reducers/recipes/recipesApi';
 import './Recipes.css';
 import ConfirmModal from '../components/ConfirmModal';
+import Message from '../components/Message';
 
 const DEFAULT_PAGE_SIZE = 10;
 
@@ -117,12 +118,20 @@ const Recipes = () => {
     return <div>Error: {error}</div>;
   }
 
-  return (
-    <div className="recipes-page-container">
+    return (
+     
+            <div className="recipes-page-container">
+                {localSuccessMessage && (
+                <Message type="success" onClose={() => setLocalSuccessMessage('')}>
+                    {localSuccessMessage}
+                </Message>
+            )}
+            {status === 'failed' && error && (
+                <Message type="error" onClose={() => dispatch(setError(null))}>
+                    {error}
+                </Message>
+            )}
       <h2>Recipes</h2>
-      {localSuccessMessage && (
-        <div className="success-message-float">{localSuccessMessage}</div>
-      )}
       {recipes.length === 0 ? (
         <div className="no-recipes-section">
           <p>No recipes found.</p>
@@ -192,7 +201,7 @@ const Recipes = () => {
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
       />
-    </div>
+            </div>
   );
 };
 

@@ -120,49 +120,66 @@ describe('recipes router', () => {
     describe('[GET] /api/recipes', () => {
 
         beforeEach(async () => {
+            // Clear tables
+            await db('step_ingredients').truncate();
+            await db('steps').truncate();
+            await db('ingredients').truncate();
+            await db('recipes').truncate();
+
+            // Insert recipe
             const recipe_id = nanoid();
             await db('recipes').insert({ recipe_id, recipe_name: 'Spaghetti Carbonara' });
 
-            // Use the correct PK column name
+            // Get inserted recipe_id
             const recipeRow = await db('recipes').where('recipe_name', recipe.recipe_name).first();
-            const r_id = recipeRow.recipe_id; // <-- use recipe_id, not id
+            const r_id = recipeRow.recipe_id;
 
+            // Insert ingredients
             for (let ingr of ingredient) {
                 await db('ingredients').insert(ingr);
             }
+
+            // Insert steps with correct recipe_id
             for (let step of steps) {
                 await db('steps').insert({ ...step, recipe_id: r_id });
             }
+
+            // Insert step_ingredients with correct step and ingredient IDs
+            // You may need to fetch actual step and ingredient IDs if your schema uses auto-increment
             for (let si of step_ingredients) {
                 await db('step_ingredients').insert(si);
             }
-        })
+        });
 
         test('should return 200 OK', async () => {
-            const res = await request(server).get('/api/recipes')
-            expect(res.status).toBe(200)
-            expect(res.type).toMatch(/json/i)
-        })
+            const res = await request(server).get('/api/recipes');
+            expect(res.status).toBe(200);
+            expect(res.type).toMatch(/json/i);
+            expect(res.body).toHaveProperty('recipes');
+            expect(Array.isArray(res.body.recipes)).toBe(true);
+            expect(res.body).toHaveProperty('total');
+            expect(res.body).toHaveProperty('page');
+            expect(res.body).toHaveProperty('pageSize');
+        });
 
         test('should return array of recipes', async () => {
-            const res = await request(server).get('/api/recipes')
-            expect(res.body).toBeInstanceOf(Array)
-            expect(res.body).toHaveLength(1)
-            expect(res.body[0]).toMatchObject({
-                recipe_name: 'Spaghetti Carbonara'
-            })
-        })
+            const res = await request(server).get('/api/recipes');
+            expect(Array.isArray(res.body.recipes)).toBe(true);
+            expect(res.body.recipes.length).toBeGreaterThanOrEqual(1);
+            expect(res.body.recipes[0]).toHaveProperty('recipe_name', 'Spaghetti Carbonara');
+        });
 
-        test('should return empty with no data', async () => {
-            await db('step_ingredients').truncate()
-            await db('steps').truncate()
-            await db('ingredients').truncate()
-            await db('recipes').truncate()
-            const res = await request(server).get('/api/recipes')
-            expect(res.body).toBeInstanceOf(Array)
-            expect(res.body).toHaveLength(0)
-            expect(res.body).toEqual([])
-        })
+        test('should return empty array with no data', async () => {
+            await db('step_ingredients').truncate();
+            await db('steps').truncate();
+            await db('ingredients').truncate();
+            await db('recipes').truncate();
+            const res = await request(server).get('/api/recipes');
+            expect(Array.isArray(res.body.recipes)).toBe(true);
+            expect(res.body.recipes).toHaveLength(0);
+            expect(res.body.recipes).toEqual([]);
+            expect(res.body).toHaveProperty('total', 0);
+        });
     })
 
     describe('[GET] /api/recipes/:id', () => {

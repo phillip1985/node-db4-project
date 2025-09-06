@@ -1,0 +1,41 @@
+.message {
+  position: fixed;
+  top: 56px; /* Adjust this value to match your navbar height */
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  border-radius: 4px;
+  font-size: 1em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  display: flex;
+  align-items: center;
+  justify-content:space-between;
+
+}
+
+.message-success {
+  background: #e6ffed;
+  color: #20753a;
+  border: 1px solid #b7eb8f;
+}
+
+.message-error {
+  background: #fff1f0;
+  color: #a8071a;
+  border: 1px solid #ffa39e;
+}
+
+.message-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  position: relative;
+  top: 0;
+  right: 0;
+  cursor: pointer;
+  color: inherit;
+}
