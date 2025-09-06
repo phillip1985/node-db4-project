@@ -211,30 +211,11 @@ const RecipeForm = () => {
 
         if (
             value.trim().length >= 3 &&
-            (!recipeId || value.trim() !== originalRecipeName.trim())
+            (!recipeId || value.trim().toLowerCase() !== originalRecipeName.trim().toLowerCase())
         ) {
-            nameCheckTimeout.current = setTimeout(async () => {
-                const exists = await checkRecipeNameExists(value.trim());
-                if (exists) {
-                    setFieldErrors((prev) => ({ ...prev, recipe_name: 'Recipe name already exists' }));
-                    setNameStatus('');
-                } else if (!errorMsg) {
-                    setFieldErrors((prev) => ({ ...prev, recipe_name: '' }));
-                    setNameStatus('Recipe name is OK');
-                }
-            }, 400);
+            setNameStatus('Recipe name is OK');
         } else {
-            if (!errorMsg) {
-                setFieldErrors((prev) => ({ ...prev, recipe_name: '' }));
-            }
-            if (
-                value.trim().length >= 3 &&
-                (!recipeId || value.trim() !== originalRecipeName.trim())
-            ) {
-                setNameStatus('Recipe name is OK');
-            } else {
-                setNameStatus('');
-            }
+            setNameStatus('');
         }
     };
 
