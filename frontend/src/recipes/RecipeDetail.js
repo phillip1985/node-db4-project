@@ -21,6 +21,7 @@ const RecipeDetail = () => {
     // Local state for the success message
     const [localSuccessMessage, setLocalSuccessMessage] = useState(location.state?.successMessage);
     const [showConfirm, setShowConfirm] = useState(false);
+    const [pendingDeleteRecipe, setPendingDeleteRecipe] = useState(null);
 
     // Hide the success message after 3 seconds
     useEffect(() => {
@@ -52,7 +53,8 @@ const RecipeDetail = () => {
         loadRecipe(id);
     }, [dispatch, id]);
 
-    const handleDelete = () => {
+    const handleDelete = (recipe) => {
+        setPendingDeleteRecipe(recipe);
         setShowConfirm(true);
     };
 
@@ -60,7 +62,7 @@ const RecipeDetail = () => {
         setShowConfirm(false);
         dispatch(setStatus('loading'));
         try {
-            await deleteRecipe(id);
+            await deleteRecipe(pendingDeleteRecipe.recipe_id);
             dispatch(setStatus('succeeded'));
             navigate('/recipes', { state: { successMessage: 'Recipe deleted successfully!' } });
         } catch (err) {
@@ -71,6 +73,7 @@ const RecipeDetail = () => {
 
     const cancelDelete = () => {
         setShowConfirm(false);
+        setPendingDeleteRecipe(null);
     };
 
     if (status === 'loading') {
@@ -108,7 +111,7 @@ const RecipeDetail = () => {
                     </Link>
                     <button
                         className="recipe-details-btn recipe-details-btn--delete"
-                        onClick={handleDelete}
+                        onClick={() => handleDelete(recipe)}
                     >
                         Delete Recipe
                     </button>
@@ -141,7 +144,11 @@ const RecipeDetail = () => {
 
             <ConfirmModal
                 show={showConfirm}
-                message="Are you sure you want to delete this recipe?"
+                message={
+                  pendingDeleteRecipe
+                    ? `Are you sure you want to delete "${pendingDeleteRecipe.recipe_name}"?`
+                    : "Are you sure you want to delete this recipe?"
+                }
                 onConfirm={confirmDelete}
                 onCancel={cancelDelete}
             />
