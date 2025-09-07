@@ -20,7 +20,7 @@ const recipeSchema = yup.object({
                 .trim()
                 .min(10, 'step instructions must be at least 10 characters long')
                 .max(200, 'step instructions must be at most 200 characters long')
-                .required(),
+                .required('step instructions is required'),
             ingredients: yup.array().of(
                 yup.object({
                     ingredient_id: yup

@@ -26,26 +26,26 @@ Router.get('/ingredients', (req, res, next) => {
 });
 
 // Place this route BEFORE any routes with /:id
-Router.get('/check-name', async (req, res) => {
+Router.get('/check-name', async (req, res, next) => {
     const { name } = req.query;
-    if (!name) return res.status(400).json({ available: false, message: 'No name provided' });
+    if (typeof name !== 'string' || name.trim() === '') {
+        return res.status(400).json({ errors: ['name query parameter is required'] });
+    }
     try {
         const exists = await Recipes.recipeNameExists(name);
         if (exists) {
-            // Name is taken
             return res.status(200).json({ available: false, message: 'Recipe name is already taken' });
         } else {
-            // Name is available
             return res.status(200).json({ available: true });
         }
     } catch (err) {
+        // Send the error response directly to match the test
         res.status(500).json({ available: false, message: 'Error checking recipe name' });
     }
 });
 
 // Now define routes with /:id after
 Router.get('/:id', (req, res, next) => {
-
     Recipes.getById(req.params.id)
         .then(recipe => {
             if (!recipe) {
@@ -88,9 +88,6 @@ Router.put('/:id', validateRecipe, validateRecipeUpdate, (req, res, next) => {
 
 Router.delete('/:id', (req, res, next) => {
     const { id } = req.params;
-
-
-
     Recipes.deleteRecipe(id)
         .then(deleted => {
             if (deleted) {

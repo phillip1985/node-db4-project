@@ -54,27 +54,29 @@ async function getById(id, trx = db) {
  * @returns {Promise<{recipes: object[], total: number, page: number, pageSize: number}>}
  */
 async function getAll(page = 1, pageSize = 10) {
-    // Ensure positive integers
-    page = Math.max(1, parseInt(page, 10) || 1);
-    pageSize = Math.max(1, parseInt(pageSize, 10) || 10);
+  page = parseInt(page, 10);
+  pageSize = parseInt(pageSize, 10);
 
-    const offset = (page - 1) * pageSize;
+  if (isNaN(page) || page < 1) page = 1;
+  if (isNaN(pageSize) || pageSize < 1) pageSize = 10;
 
-    // Get total count
-    const [{ count }] = await db('recipes').count('recipe_id as count');
-    const total = parseInt(count, 10);
+  const offset = (page - 1) * pageSize;
 
-    // Get paginated recipes
-    const recipes = await db('recipes')
-        .limit(pageSize)
-        .offset(offset);
+  // Get total count
+  const [{ count }] = await db('recipes').count('recipe_id as count');
+  const total = parseInt(count, 10);
 
-    return {
-        recipes,
-        total,
-        page,
-        pageSize,
-    };
+  // Get paginated recipes
+  const recipes = await db('recipes')
+      .limit(pageSize)
+      .offset(offset);
+
+  return {
+      recipes,
+      total,
+      page,
+      pageSize,
+  };
 }
 
 async function getIngredients() {

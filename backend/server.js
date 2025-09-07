@@ -14,12 +14,14 @@ server.get('/', (req, res) => {
     res.status(200).json({ message: 'API is alive' });
 });
 
-server.use((err, req, res, next) => { // eslint-disable-line
-    res.status(500).json({
-        message: err.message,
-        stack: err.stack,
-    });
+// Global error handler (must be last)
+server.use((err, req, res, next) => {
+  // Log error for coverage
+  console.error(err);
+  // If response already sent, delegate to default Express error handler
+  if (res.headersSent) return next(err);
+  // Use err.status if set, otherwise 500
+  res.status(err.status || 500).json({ message: err.message || 'Internal server error' });
 });
-
 
 module.exports = server;
