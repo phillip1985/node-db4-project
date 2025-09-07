@@ -6,8 +6,8 @@ module.exports = {
   entry: './src/index.jsx',
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'bundle.js',
-    publicPath: '/', // or '/recipes/' if you want that prefix
+    filename: '[name].js', // <-- Use [name] for chunk-specific filenames
+    publicPath: '/',
     clean: true,
   },
   mode: 'development',
@@ -53,4 +53,16 @@ module.exports = {
       filename: './[name].css',
     }),
   ],
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+      },
+    },
+  },
 };
