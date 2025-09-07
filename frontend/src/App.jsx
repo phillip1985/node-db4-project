@@ -3,13 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import Recipes from './recipes/Recipes';
 import RecipeDetail from './recipes/RecipeDetail';
 import RecipeForm from './recipes/RecipeForm';
-
-const Home = () => (
-    <div>
-        <h2>Home Page</h2>
-        <p>Welcome to the Recipe App!</p>
-    </div>
-);
+import Home from './Home';
 
 const App = () => (
     <Router>

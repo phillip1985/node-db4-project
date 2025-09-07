@@ -1,0 +1,29 @@
+.home-container {
+  text-align: center;
+  margin-top: 60px;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.home-links {
+  margin-top: 30px;
+}
+
+.home-link {
+  display: inline-block;
+  margin: 0 15px;
+  padding: 12px 24px;
+  background: #4caf50;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 1.1em;
+  transition: background 0.2s;
+}
+
+.home-link:hover {
+  background: #388e3c;
+}
